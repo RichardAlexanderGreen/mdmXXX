@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Roadmap</title>
+</head>
+<body>
+<h1>Roadmap</h1>
+  <p> Assets come first because they provide the basis for other (more interesting) things.
+      Scale tests create electrical services which connect to transformers which connect to circuits.
+      Services are monitored by meters which are a kind of device.
+      Devices have part numbers, suppliers, and connections to other devices.
+  </p>
+  <ul>
+    <li>Define specific assets as entities with arbitrary attribute dictionaries. </li>
+    <li>A super-type defines a set of default attribute sets. </li>
+    <li>Devices have locations (GPS coordinates).</li>
+    <li>Circuits have a location-centroid defined by the average GPS of its transformers.</li>
+    <li>Simulator creates multiple circuits, transformers, services with connections.</li>
+    <li>Store { entity_attribute, { Entity, Attribute }, [ { TimeStamp, Value }  ]  } in persistent tables</li>
+    <li>Store { entity_relation,  { Entity, Relation } , [ { TimeStamp, Entity } ]  } in persistent tables</li>
+  </ul>
+  <p> The demand simulator comes second.
+      It simulates the meter network and publishes usage data.
+      The usage history component collects usage data.
+  </p>
+  <ul>
+    <li>Meters report demand data in real time giving their service, transformer, and circuit. </li>
+    <li>Store { service_demand, Service, Measure, TimePeriod } in persistent tables.</li>
+    <li>Services, transformers, and circuits aggregate demand. </li>
+    <li>Store { transformer_demand, Device, Measure, TimePeriod } in persistent tables.</li>
+    <li>Store { circuit_demand,     Device, Measure, TimePeriod } in persistent tables.</li>
+    <li>This version does not attempt to validate data or detect gaps in the data.</li>
+  </ul>
+  <p>The event simulator comes third.
+     It simulates power outage events.
+     Events are aggregated to transformers (sub-circuits) and circuits.
+   </p>
+   <ul>
+     <li>Meters report outage events.</li>
+     <li>Outage events are aggregated by transformer (sub-circuit) and circuit.</li>
+     <li>This version does not attempt to simulate restoration events or device state.</li>
+   </ul>
+   <p>Device state comes fourth.
+      Erlang gen_FSM processes track meter and circuit state.     
+   </p>
+  
+  <ul>
+    <li>Model meter state as a gen_FSM pattern.</li>
+    <li>Model circuit state as a gen_FSM pattern.</li>
+    <li>Connect event process to FSM state models.</li>
+  </ul>
+  <p>Refinements ranked fifth priority include:
+    <br />Detect gaps in usage data.
+    <br />Detect devices that are installed but appear to be inactive.
+  </p>
+  <ul>
+    <li>Detect gaps in usage data.
+      <br />-- Each circuit scans its services periodically (at least daily) to detect any gaps since the last scan.
+    </li>
+    <li>Detect devices that are installed but appear to be unreliable.
+      <br >-- A device with an excessive quantity (minutes) of gaps may require some repair or assistance (e.g. a signal booster).
+    </li>
+  </ul>
+</body>
+</html>
