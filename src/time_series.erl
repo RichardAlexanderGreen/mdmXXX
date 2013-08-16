@@ -78,14 +78,13 @@ new( UDT_Start, UDT_Stop, IntervalSize, Quantity ) ->
 		QuantityPerInterval = Quantity / N_Intervals,	
 		TimeSeriesResult = putIntervals(  QuantityPerInterval, IndexStart, IndexStop, TimeSeries0 ),
 		TimeSeriesResult.
+
 putIntervals( QtyPer, IndexStart, IndexStop, TimeSeries )  when IndexStart == IndexStop   ->  % The indexes are equal - No more interation
 		TimeSeries;
-
 putIntervals( _QtyPer, IndexStart, IndexStop, _TimeSeriesIn ) when IndexStart > IndexStop ->
 		?debugVal( { logic_error, ?MODULE, putInterval, IndexStart, IndexStop } ),
-		error_logger:error_report({logic_error, ?MODULE, putInterval, IndexStart, IndexStop }),
+		error_logger:error_report( {logic_error, ?MODULE, putInterval, IndexStart, IndexStop } ),
 		'FAIL - TROUBLE IN putIntevals';
-
 putIntervals( QtyPer, IndexStart, IndexStop, TimeSeriesIn ) ->
 		%?debugVal( { trace, putInterval, QtyPer, IndexStart, IndexStop } ),
 		TimeSeriesOut = orddict:store( IndexStart, QtyPer, TimeSeriesIn ),

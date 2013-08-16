@@ -2,7 +2,7 @@
 %% Created: Jan 6, 2011
 %% Description: actor.hrl provides the Erlang general server wrapper
 %%  that every business process actor will need.
-%%  The defines adds do/2 and answer/1 functions 
+%%  The actor definition adds do/2 and answer/1 functions 
 %%  to handle asynchronous requests and synchronous queries.
 
 -behaviour( gen_server ).
@@ -67,7 +67,7 @@ start_server() ->
 %% --------------------------------------------------------------------
 init(ArgList) ->
 		
-		process_flag( trap_exit, true ),   % Enable terminate -- So we can flush tables on shutdown
+		process_flag( trap_exit, true ),            % Enable custom_shutdown -- So actor can clean-up 
 		global:register_name( ?MODULE, self() ),    % Enable remote nodes to use global:send( quad, {Action} )
 		log_open( atom_to_list(?MODULE)++"_log.txt" ),
 		% Call actor's initialization routine.
@@ -140,8 +140,6 @@ code_change( _OldVsn, State, _Extra) ->
 
 %% -----------------------------------------------------------------------------------
 %% Log events for debug.
-udt() ->
-		calendar:universal_time().
 
 % Reports below the current LOGLEVEL are ignoared.
 % ALL=0 < TRACE=1 < DEBUG=2 < INFO=3 < WARN=4 < ERROR=5 < FATAL=6 < OFF=7
@@ -164,6 +162,12 @@ log( Level, Report ) ->
 		
 		ok.
 
+% Thinking out loud: I prefer file:write/2 (above) because it can be read outside of erlang.
+% If necessary, the log file can be formatted to enable some external log scanner.
+% ets enables qlc queries, which can be useful when scanning a large log.
+% ets may also require a large memory space if the log is large.
+% With both systems, you have to deal with the fact that the io is buffered.
+
 log_open( LogName ) ->
 		%?debugVal( { log_open, LogName } ),
 		
@@ -180,12 +184,11 @@ log_close() ->
 		file:close( get( log )  ),
 		ok.
 
+% Utility to make my code more concise.
+udt() ->
+		calendar:universal_time().
 
-% Thinking out loud: I prefer file:write/2 because it can be read outside of erlang.
-% If necessary, the log file can be formatted to enable some external log scanner.
-% ets enables qlc queries, which can be useful when scanning a large log.
-% ets may also require a large memory space if the log is large.
-% With both systems, you have to deal with the fact that the io is buffered.
+
 
 %% -----------------------------------------------------------------------------------
 

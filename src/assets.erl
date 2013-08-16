@@ -76,6 +76,7 @@ start_server() ->
 %% --------------------------------------------------------------------
 init([]) ->
 		?debugMsg( init ),	
+		process_flag( trap_exit, true ), 
 		% Assure that quad has been globally registered -- Assume it is running.
 		case global:whereis_name( quad ) of
 				undefined ->
@@ -151,6 +152,10 @@ do( { service, S, usage_monitored_by_device, D, TimeStamp } ) ->
 		send( quad,  { begin_entity_relation, S, service_usage_monitored_by_device, D, TimeStamp } ),
 		ok;
 
+do( { service, S, installed_on_circuit, C, TimeStamp } ) ->
+		send( quad, { add_relationship, S, installed_on_circuit, C, TimeStamp } ),
+		ok;
+
 do( { service, S, installed_at_premise, P, TimeStamp } ) -> 
 		send( quad,  { add_relationship, S, installed_at_premise, P, TimeStamp } ),
 		ok;
@@ -179,15 +184,24 @@ do( UnmatchedAction ) ->
 %% Answer questions about assets.
 
 answer( { what_is_value_of_attribute, AttributeName, for_asset, AssetID } ) ->
-		Reply = world_base:ask( { what_is_current_value_of_attribute, AssetID, AttributeName } ),
-		Reply;
+		Answer = gen_server:call( quad, {what_is_value_of, AssetID, AttributeName } ),
+		Answer;
+
+answer( { list_attributes_of_asset, AssetID } ) ->
+		List = gen_server:call( quad, { list_attributes_of, AssetID } ),
+		List;
+
+answer( { list_relationships_of_asset, AssetID } ) ->
+		List = gen_server:call( quad, { list_relationships_of, AssetID } ),
+		List;
+
+answer( { list_all_services_on_circuit, CircuitID } ) ->
+		List = gen_server:call( quad, { list_associates_of, CircuitID, installed_on_circuit } ),
+		List;
 
 answer( UnmatchedRequest ) ->
 		{ ?MODULE, does_not_understand_Request, UnmatchedRequest }.
 		
-
-
-
 
 %% --------------------------------------------------------------------
 
@@ -198,14 +212,14 @@ send( { global, Name }, Cmd ) ->
 		catch global:send( Name, Cmd ),
     ok;
 
-send( M, Cmd) when is_pid( M ) ->
-		?debugVal( {send, local, M, Cmd }),
+send( M, Cmd ) when is_pid( M ) ->
+		?debugVal( { send, local, M, Cmd }),
     M ! Cmd,
     ok;
 
-send( Name, Cmd) when is_atom( Name )->
-		?debugVal( {send, local, Name, Cmd }),
+send( Name, Cmd ) when is_atom( Name )->
+		?debugVal( { send, local, Name, Cmd }),
 		undefined =/= global:whereis_name( Name ),		
-		catch global:send(Name, Cmd),
+		catch global:send( Name, Cmd ),
     ok.
 

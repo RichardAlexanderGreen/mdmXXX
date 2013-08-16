@@ -1,6 +1,12 @@
+'===================== START OF SCRIPT ================'.
+
 'application:start( mdm )'.
  application:start( mdm ).
+
 'circuit_test:test()'.
  circuit_test:test().
+
 'application:stop( mdm )'.
-application:stop( mdm ).
+ application:stop( mdm ).
+
+'===================== END OF SCRIPT ================'.

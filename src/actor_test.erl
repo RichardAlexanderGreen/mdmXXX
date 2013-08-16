@@ -45,7 +45,7 @@ custom_shutdown( State ) ->
 		ok.
 
 %%
-%% Test Functions -- 
+%% //////////////////////////// Test Functions -- /////////////////////////////////////////
 %%
 
 % Test service initialization.

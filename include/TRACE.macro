@@ -1,0 +1,5 @@
+-ifdef( debug ).
+-define( TRACE(X), io:format("Tracing: ~n~p~n", [{ trace, {process, self()}, { module, ?MODULE }, {function, X} } ] )   ).
+-else.
+-define( TRACE(X), void ).
+-endif.

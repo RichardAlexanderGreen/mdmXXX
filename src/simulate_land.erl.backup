@@ -12,7 +12,7 @@
 %% Include files
 %%
 -define( NODEBUG, true ).
--define( TEST, true ).
+-define( NOTEST, true ).
 -include_lib("eunit/include/eunit.hrl").
 
 -ifdef( TEST ).
@@ -39,51 +39,37 @@
 %---------------------------------------------------------------------------------
 % Layout services in a circuit.
 
-layout_circuit( CircuitID, Coordinates, _LineID, N_ServicesRemain ) when N_ServicesRemain < 1 ->
-		{ CircuitID, Coordinates };
+layout_circuit( CircuitID, Lat, Long, _LineID, N_ServicesRemain ) when N_ServicesRemain < 1 ->
+		{ CircuitID, Lat, Long };
 
-layout_circuit( CircuitID, Coordinates, LineID, N_ServicesRemain ) ->
+layout_circuit( CircuitID, Lat, Long, LineID, N_ServicesRemain ) ->
 		N_PerLine = lists:min( [32, N_ServicesRemain] ),                                              % 32 services per line
-		layout_services( CircuitID, Coordinates, LineID, N_PerLine ),
+		layout_services( CircuitID, Lat, Long, LineID, N_PerLine ),
 		LineSpacing = 30,                                         % 30 meters is about 100 feet
 		% 32 * 30 meters = 960 meters (Keep each circuit about 1 km square.)
-		{Lat, Long } = Coordinates,
-		NewCoordinates = { Lat + (LineSpacing * ?DEGREES_PER_METER), Long }, 
-		layout_circuit( CircuitID, NewCoordinates , LineID + 1, N_ServicesRemain - N_PerLine ). % Moving North.
+		layout_circuit( CircuitID, Lat + (LineSpacing * ?DEGREES_PER_METER), Long, LineID + 1, N_ServicesRemain - N_PerLine ). % Moving North.
 
 
-layout_services( _CircuitID, _Coordinates, _LineID, N_RemainOnLine ) when N_RemainOnLine < 1 ->
+layout_services( _CircuitID, _Lat, _Long, _LineID, N_RemainOnLine ) when N_RemainOnLine < 1 ->
 		ok;
-layout_services( CircuitID, Coordinates, LineID, N_RemainOnLine ) ->
-		%new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
-		%_new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
-		new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
+layout_services( CircuitID, Lat, Long, LineID, N_RemainOnLine ) ->
+		%new_service( Lat, Long, CircuitID, LineID, N_RemainOnLine ),
+		%_new_service( Lat, Long, CircuitID, LineID, N_RemainOnLine ),
+		new_service( Lat, Long, CircuitID, LineID, N_RemainOnLine ),
 		ServiceSpacing = 30,
-		{Lat, Long } = Coordinates,
-		NewCoordinates = { Lat, Long + (ServiceSpacing * ?DEGREES_PER_METER) },
-		layout_services( CircuitID, NewCoordinates, LineID, N_RemainOnLine - 1 ). % Moving East.
+		layout_services( CircuitID, Lat, Long + (ServiceSpacing * ?DEGREES_PER_METER), LineID, N_RemainOnLine - 1 ). % Moving East.
 
-new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ) -> 
-		?debugVal( { new_service, Coordinates, CircuitID, LineID, N_RemainOnLine } ),
+new_service( Lat, Long, CircuitID, LineID, N_RemainOnLine ) -> 
+		?debugVal( { new_service, Lat, Long, CircuitID, LineID, N_RemainOnLine } ),
 		
 		ServiceID = { service, CircuitID, LineID, N_RemainOnLine },
 		PremiseID = { premise, CircuitID, LineID, N_RemainOnLine },
+		Location = { Lat, Long },
 		W5 = w5( "new_service", "simulate_land"),
 		global:send( assets,  { service, ServiceID, installed_at_premise, PremiseID, W5 } ),
-		NameValueList = [ {circuit, CircuitID}, {location, Coordinates} ] ,
-		tell( assets, { asset, ServiceID, has_attributes, NameValueList , W5 } ),		
-		tell( assets, { service, ServiceID, installed_on_circuit, CircuitID, W5 }),
+		NameValueList = [ {circuit, CircuitID}, {location,Location} ] ,
+		global:send( assets,  { asset, ServiceID, has_attributes, NameValueList , W5 } ),		
 		ok.
-
-tell( Actor, Message ) ->
-		global:send( Actor, Message ),
-		Log = get(log),
-		case Log of
-				undefined ->
-						do_nothing;
-				_ ->
-						disk_log:log( Log, {Actor, Message } )
-		end.
 
 
 -ifdef( CENTROID ).
@@ -94,7 +80,7 @@ update_circuit_centroid( CircuitID, Lat, Long ) ->
 		
 		case Centroid of
 				{ ok, none } ->
-						NewCentroid = { Coordinates, 1 };
+						NewCentroid = { Lat, Long, 1 };
 				
 				{ok, { CentroidLat, CentroidLong, N_Points } } ->
 					  NewPoints = N_Points + 1,
@@ -120,10 +106,10 @@ generate_circuits( N_Circuits, _CircuitSize ) when N_Circuits < 1 ->
 
 generate_circuits( N_Circuits, CircuitSize ) ->
 		CircuitID = N_Circuits,		
-		Latitude   = (50 - random:uniform(100) ) * 1000 * ?DEGREES_PER_METER, %Place circuits randomly in a 100 kilometer square 
-		Longitude  = (50 - random:uniform(100) ) * 1000 * ?DEGREES_PER_METER,
-		Coordinates = { Latitude, Longitude },
-		layout_circuit( CircuitID, Coordinates, 1, CircuitSize ),	
+		North = (50 - random:uniform(100) ) * 1000 * ?DEGREES_PER_METER, %Place circuits randomly in a 100 kilometer square 
+		East  = (50 - random:uniform(100) ) * 1000 * ?DEGREES_PER_METER,
+		
+		layout_circuit( CircuitID, North, East , 1, CircuitSize ),	
 		generate_circuits( N_Circuits - 1 , CircuitSize ).
 
 %---------------------------------------------------------------------------------

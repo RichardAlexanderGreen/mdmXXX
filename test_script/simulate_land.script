@@ -1,0 +1,15 @@
+
+'net_adm:ping( quadNode@RichardGreenMacBookPro.local )'.
+ net_adm:ping( quadNode@RichardGreenMacBookPro.local ).
+
+'application:start( mdm )'.
+ application:start( mdm ).
+
+'simulate_land:test()'.
+ simulate_land:test().
+
+'simulate_land:generate_circuits( 20, 1000 )'.
+ simulate_land:generate_circuits( 20, 1000 ).
+
+'application:stop( mdm )'.
+ application:stop( mdm ).
