@@ -13,8 +13,8 @@
 %%% @end
 %%% --------------------------------------------------------------
 %%% Asset Manager (assets) :: Track services and metering network devices.
-%%% 	assets ! { service, S, usage_monitored_by_device, D, starting_at_time, T }
-%%% 	assets ! { service, S, installed_at_location, L }
+%%%   assets ! { service, S, usage_monitored_by_device, D, starting_at_time, T }
+%%%   assets ! { service, S, installed_at_location, L }
 %%%	  assets ! { service, S, removed }
 %%%	  assets ! { asset, A, has_attributes, Dict } 
 %%%	  assets ! { asset_class, C, has_attributes, Dict }
@@ -94,8 +94,8 @@
 
 %%% --------------------------------------------------------------
 %%% Asset Manager (assets) :: Track services and metering network devices.
-%%% 	assets ! { service, S, usage_monitored_by_device, D, starting_at_time, T }
-%%% 	assets ! { service, S, installed_at_location, L }
+%%%   assets ! { service, S, usage_monitored_by_device, D, starting_at_time, T }
+%%%   assets ! { service, S, installed_at_location, L }
 %%%	  assets ! { service, S, removed }
 %%%	  assets ! { asset, A, has_attributes, Dict } 
 %%%	  assets ! { asset_class, C, has_attributes, Dict }
@@ -107,7 +107,7 @@
 %%%	  Dict is maintained in a list via orddict.
 %%% --------------------------------------------------------------
 asset_manager_test() ->
-  % Assume assets is registered locally -- otherwise ! operator will not work.
+  % Assume assets (actor PID) is registered locally -- otherwise ! operator will not work.
 	true = lists:member( assets, registered() ),
 	
 	% Install a service	
@@ -224,7 +224,7 @@ field_service_test() ->
 %%% --------------------------------------------------------------
 %%% Pricing :: Price usage in real time (and send to billing)
 %%%	  pricing ! { service, S, is_priced_by_mechanism, M }
-%%% 	pricing ! { service, S, had_usage, U }
+%%%   pricing ! { service, S, had_usage, U }
 %%% where
 %%%	  mechanism() -> { module, function( usage() ) }
 %%% --------------------------------------------------------------
@@ -265,10 +265,3 @@ installer_test() ->
 		T2 = { date(), time() },
 		Period = { T1, T2 },
 		installer ! { schedule_group, Group, with_services, [ Services ], for_period, Period }.
-
-		
-		
-
-
-
-		

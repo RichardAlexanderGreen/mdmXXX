@@ -58,7 +58,7 @@ layout_services( CircuitID, Coordinates, LineID, N_RemainOnLine ) ->
 		%new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
 		%_new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
 		new_service( Coordinates, CircuitID, LineID, N_RemainOnLine ),
-		ServiceSpacing = 30,
+		ServiceSpacing = 30, % meters ~ 100 feet
 		{Lat, Long } = Coordinates,
 		NewCoordinates = { Lat, Long + (ServiceSpacing * ?DEGREES_PER_METER) },
 		layout_services( CircuitID, NewCoordinates, LineID, N_RemainOnLine - 1 ). % Moving East.
@@ -80,9 +80,9 @@ tell( Actor, Message ) ->
 		Log = get(log),
 		case Log of
 				undefined ->
-						do_nothing;
+					do_nothing;
 				_ ->
-						disk_log:log( Log, {Actor, Message } )
+					disk_log:log( Log, {Actor, Message } )
 		end.
 
 
@@ -143,7 +143,7 @@ generate_circuits_test() ->
 		ok = generate_circuits( 2, 5 ).
 
 generate_circuits_load_test( Password ) ->
-		'734-223-6687' = Password,
+		'GrossDerelictionOfDuty' = Password,
 		%mnesia:clear_table( entity_attribute ),
 		%mnesia:clear_table( entity_relationship ),	
 		ok = generate_circuits( 10, 100 ).

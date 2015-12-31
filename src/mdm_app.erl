@@ -1,4 +1,4 @@
-%%% @doc This is the _app module of the MDM application.
+%%% @doc This is the _app module of the MDM application.  CURRENTLY JUST A TEMPLATE
 %%%      The mdm_server module contains a detailed description of the application.
 %%% @end
 %%% @Author: RichardAlexanderGreen@gmail.com

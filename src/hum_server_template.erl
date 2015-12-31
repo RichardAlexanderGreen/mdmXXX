@@ -48,10 +48,10 @@
 start_server() ->
 		?debugMsg( start_server),
 		
-		gen_server:start_link(                       % Start server instance.
-                           { local, ?SERVER },   % Give it a local name.
-													 ?MODULE, []           % The module containing and arguments for init/1.
-													 , []                  % options
+		gen_server:start_link(  % Start server instance.
+                           { local, ?SERVER },    % Give it a local name.
+							?MODULE, []           % The module containing and arguments for init/1.
+							, []                  % options
                            ).  
 
 %% --------------------------------------------------------------------

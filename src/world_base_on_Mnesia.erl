@@ -61,12 +61,12 @@ ask( Question ) ->
 		
 % Call only when you want to create a new Mnesia database on the current node.
 create_world_base( Password ) ->
-		Password = '734-223-6687',
+		Password = 'GrossDerelictionOfDuty',
 		_ = mnesia:create_schema([node()]),
 		mnesia:start(),
 		TableConfigs = [ { disc_only_copies, [node()]  }
-									 , { type, set } 
-									 ],
+						, { type, set } 
+						],
 		{atomic, ok} = mnesia:create_table( entity_attribute, [ {attributes, record_info( fields, entity_attribute ) } ]  
 																			++ TableConfigs 
 																			),
@@ -132,10 +132,10 @@ handle_call( Question, From, State ) ->
 		?debugVal( { handle_call, Question, From }),	
     Reply = answer( Question ),
 		NewState = #state{ n_set_entity_attribute  = State#state.n_set_entity_attribute
-					           , n_get_entity_attribute  = State#state.n_get_entity_attribute + 1
-					           , n_begin_entity_relation = State#state.n_begin_entity_relation
-					           , n_end_entity_relation   = State#state.n_end_entity_relation 
-					           },
+					     , n_get_entity_attribute  = State#state.n_get_entity_attribute + 1
+					     , n_begin_entity_relation = State#state.n_begin_entity_relation
+					     , n_end_entity_relation   = State#state.n_end_entity_relation 
+					     },
     {reply, Reply, NewState}.
 
 %% --------------------------------------------------------------------
